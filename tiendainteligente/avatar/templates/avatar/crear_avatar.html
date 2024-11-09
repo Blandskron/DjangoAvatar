@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Avatar{% endblock %}
+
+{% block content %}
+<h2 class="text-center">Crear Avatar</h2>
+<div class="text-center">
+    <button onclick="abrirAvatarCreator()" class="btn btn-success">Iniciar Avatar Creator</button>
+</div>
+<div class="d-flex justify-content-center mt-4">
+    <iframe id="iframeAvatar" style="display:none; width:100%; height:800px;" allow="camera *; microphone *"></iframe>
+</div>
+
+<script>
+    function recibirMensaje(event) {
+        const origenPermitido = 'https://demo.readyplayer.me';
+        if (event.origin !== origenPermitido) return;
+
+        const { eventName, data } = event.data;
+
+        if (eventName === 'v1.avatar.exported') {
+            fetch('/avatar/crear/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ avatar_url: data.url })
+            });
+        }
+    }
+
+    window.addEventListener('message', recibirMensaje, false);
+
+    function abrirAvatarCreator() {
+        const iframe = document.getElementById('iframeAvatar');
+        iframe.src = 'https://demo.readyplayer.me/avatar?frameApi';
+        iframe.style.display = 'block';
+    }
+</script>
+{% endblock %}
